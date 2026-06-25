@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary colors -->
+    <color name="purple_start">#6D28D9</color>
+    <color name="purple_end">#4C1D95</color>
+    <color name="accent_purple">#A78BFA</color>
+    <color name="dark_blue">#1E1B4B</color>
+
+    <!-- UI colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="gray_dark">#374151</color>
+    <color name="gray_medium">#6B7280</color>
+    <color name="gray_light">#E5E7EB</color>
+    <color name="background_white">#FAFAFA</color>
+
+    <!-- Status colors -->
+    <color name="status_active">#3B82F6</color>
+    <color name="status_inprogress">#FCD34D</color>
+    <color name="status_resolved">#34D399</color>
+    <color name="status_escalated">#F87171</color>
+    <color name="status_pending">#93C5FD</color>
+</resources>
