@@ -14,7 +14,7 @@
         android:src="@android:drawable/ic_menu_revert"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Back"
-        android:tint="@color/purple_start"
+        app:tint="@color/purple_start"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -78,6 +78,7 @@
                     android:layout_marginBottom="8dp" />
 
                 <EditText
+                    android:id="@+id/et_full_name"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:hint="Enter full name"
@@ -106,6 +107,7 @@
                     android:layout_marginBottom="8dp" />
 
                 <EditText
+                    android:id="@+id/et_student_id"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:hint="e.g. STU-20240001"
@@ -116,7 +118,7 @@
 
             </LinearLayout>
 
-            <!-- Institute Email -->
+            <!-- Email -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -126,16 +128,17 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Institute email"
+                    android:text="Email"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="@color/dark_blue"
                     android:layout_marginBottom="8dp" />
 
                 <EditText
+                    android:id="@+id/et_email"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:hint="student@institute.edu"
+                    android:hint="your@email.com"
                     android:textColorHint="@color/gray_medium"
                     android:background="@drawable/input_field_rounded"
                     android:paddingStart="16dp"
@@ -144,7 +147,7 @@
 
             </LinearLayout>
 
-            <!-- Department Dropdown (Placeholder) -->
+            <!-- Department Dropdown -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -160,13 +163,11 @@
                     android:textColor="@color/dark_blue"
                     android:layout_marginBottom="8dp" />
 
-                <TextView
+                <Spinner
+                    android:id="@+id/spinner_department"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:text="Select department ▾"
-                    android:textColor="@color/gray_medium"
                     android:background="@drawable/input_field_rounded"
-                    android:gravity="center_vertical|start"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp" />
 
@@ -189,6 +190,7 @@
                     android:layout_marginBottom="8dp" />
 
                 <EditText
+                    android:id="@+id/et_password"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:hint="Create password"

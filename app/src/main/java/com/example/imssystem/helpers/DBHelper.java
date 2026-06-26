@@ -448,4 +448,148 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return count;
     }
+
+    public int deleteComplaint(int complaintId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsDeleted = db.delete(TABLE_COMPLAINTS, KEY_COMPLAINT_ID + "=?",
+                new String[]{String.valueOf(complaintId)});
+        // Also delete status logs for this complaint
+        db.delete(TABLE_STATUS_LOGS, KEY_LOG_COMPLAINT_ID + "=?",
+                new String[]{String.valueOf(complaintId)});
+        db.close();
+        return rowsDeleted;
+    }
+
+    public User getUserById(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS, null,
+                KEY_USER_ID + " = ?",
+                new String[]{String.valueOf(id)},
+                null, null, null);
+        User user = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            user = new User();
+            user.setId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_USER_ID)));
+            user.setName(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_NAME)));
+            user.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_EMAIL)));
+            user.setRole(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_ROLE)));
+            user.setDepartment(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_DEPARTMENT)));
+            user.setStudentId(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_STUDENT_ID)));
+            cursor.close();
+        }
+        db.close();
+        return user;
+    }
+
+    public User getUserByStudentId(String studentId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS, null,
+                KEY_USER_STUDENT_ID + " = ?",
+                new String[]{studentId},
+                null, null, null);
+        User user = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            user = new User();
+            user.setId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_USER_ID)));
+            user.setName(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_NAME)));
+            user.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_EMAIL)));
+            user.setRole(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_ROLE)));
+            user.setDepartment(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_DEPARTMENT)));
+            user.setStudentId(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_STUDENT_ID)));
+            cursor.close();
+        }
+        db.close();
+        return user;
+    }
+
+    public List<User> getAllUsers() {
+        List<User> userList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS, null, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                User user = new User();
+                user.setId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_USER_ID)));
+                user.setName(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_NAME)));
+                user.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_EMAIL)));
+                user.setRole(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_ROLE)));
+                user.setDepartment(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_DEPARTMENT)));
+                user.setStudentId(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_STUDENT_ID)));
+                userList.add(user);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return userList;
+    }
+
+    public int updateUserRole(int userId, String newRole) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_USER_ROLE, newRole);
+        int rowsUpdated = db.update(TABLE_USERS, values, KEY_USER_ID + "=?",
+                new String[]{String.valueOf(userId)});
+        db.close();
+        return rowsUpdated;
+    }
+
+    public int getComplaintsResolvedInPastWeek() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        long oneWeekAgo = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String oneWeekAgoStr = sdf.format(new Date(oneWeekAgo));
+
+        Cursor cursor = db.query(TABLE_COMPLAINTS, null,
+                KEY_COMPLAINT_STATUS + " IN ('Resolved', 'Closed') AND " + KEY_COMPLAINT_UPDATED_AT + " >= ?",
+                new String[]{oneWeekAgoStr}, null, null, null);
+        int count = cursor.getCount();
+        cursor.close();
+        db.close();
+        return count;
+    }
+
+    public int getComplaintsResolvedInPastMonth() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        long oneMonthAgo = System.currentTimeMillis() - (30 * 24 * 60 * 60 * 1000);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String oneMonthAgoStr = sdf.format(new Date(oneMonthAgo));
+
+        Cursor cursor = db.query(TABLE_COMPLAINTS, null,
+                KEY_COMPLAINT_STATUS + " IN ('Resolved', 'Closed') AND " + KEY_COMPLAINT_UPDATED_AT + " >= ?",
+                new String[]{oneMonthAgoStr}, null, null, null);
+        int count = cursor.getCount();
+        cursor.close();
+        db.close();
+        return count;
+    }
+
+    public int getComplaintsResolvedInPastWeekByDepartment(String department) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        long oneWeekAgo = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String oneWeekAgoStr = sdf.format(new Date(oneWeekAgo));
+
+        Cursor cursor = db.query(TABLE_COMPLAINTS, null,
+                KEY_COMPLAINT_STATUS + " IN ('Resolved', 'Closed') AND " + KEY_COMPLAINT_DEPARTMENT + " = ? AND " + KEY_COMPLAINT_UPDATED_AT + " >= ?",
+                new String[]{department, oneWeekAgoStr}, null, null, null);
+        int count = cursor.getCount();
+        cursor.close();
+        db.close();
+        return count;
+    }
+
+    public int getComplaintsResolvedInPastMonthByDepartment(String department) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        long oneMonthAgo = System.currentTimeMillis() - (30 * 24 * 60 * 60 * 1000);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String oneMonthAgoStr = sdf.format(new Date(oneMonthAgo));
+
+        Cursor cursor = db.query(TABLE_COMPLAINTS, null,
+                KEY_COMPLAINT_STATUS + " IN ('Resolved', 'Closed') AND " + KEY_COMPLAINT_DEPARTMENT + " = ? AND " + KEY_COMPLAINT_UPDATED_AT + " >= ?",
+                new String[]{department, oneMonthAgoStr}, null, null, null);
+        int count = cursor.getCount();
+        cursor.close();
+        db.close();
+        return count;
+    }
 }

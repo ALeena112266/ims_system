@@ -97,6 +97,12 @@ public class HandlerDashboardActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.tv_in_progress)).setText(String.valueOf(inProgress));
         ((TextView) findViewById(R.id.tv_resolved)).setText(String.valueOf(resolved));
         ((TextView) findViewById(R.id.tv_escalated)).setText(String.valueOf(escalated));
+
+        // Update metrics
+        int weekResolved = dbHelper.getComplaintsResolvedInPastWeekByDepartment(userDepartment);
+        int monthResolved = dbHelper.getComplaintsResolvedInPastMonthByDepartment(userDepartment);
+        ((TextView) findViewById(R.id.tv_week)).setText(String.valueOf(weekResolved));
+        ((TextView) findViewById(R.id.tv_month)).setText(String.valueOf(monthResolved));
     }
 
     private void openComplaintList(String filterType) {

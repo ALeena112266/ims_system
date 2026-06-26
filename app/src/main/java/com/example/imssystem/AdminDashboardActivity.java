@@ -3,14 +3,13 @@ package com.example.imssystem;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-
 import com.example.imssystem.helpers.DBHelper;
 import com.example.imssystem.models.Complaint;
-
 import java.util.List;
 
 public class AdminDashboardActivity extends AppCompatActivity {
@@ -27,7 +26,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
         userId = getIntent().getIntExtra("userId", 0);
         userName = getIntent().getStringExtra("userName");
 
-        // Update greeting
         TextView tvUserName = findViewById(R.id.tv_user_name);
         if (userName != null) {
             tvUserName.setText(userName + " 👋");
@@ -39,32 +37,26 @@ public class AdminDashboardActivity extends AppCompatActivity {
         CardView cardResolved = findViewById(R.id.card_resolved);
         CardView cardEscalated = findViewById(R.id.card_escalated);
 
-        cardTotal.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openComplaintList("all");
-            }
+        cardTotal.setOnClickListener(v -> openComplaintList("all"));
+        cardActive.setOnClickListener(v -> openComplaintList("active"));
+        cardResolved.setOnClickListener(v -> openComplaintList("resolved"));
+        cardEscalated.setOnClickListener(v -> openComplaintList("escalated"));
+
+        // Quick actions
+        Button btnManageUsers = findViewById(R.id.btn_manage_users);
+        btnManageUsers.setOnClickListener(v -> {
+            Intent intent = new Intent(this, UserListActivity.class);
+            startActivity(intent);
         });
 
-        cardActive.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openComplaintList("active");
-            }
-        });
+        // Bottom nav
+        LinearLayout navAllComplaints = findViewById(R.id.nav_all_complaints);
+        navAllComplaints.setOnClickListener(v -> openComplaintList("all"));
 
-        cardResolved.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openComplaintList("resolved");
-            }
-        });
-
-        cardEscalated.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openComplaintList("escalated");
-            }
+        LinearLayout navManageUsers = findViewById(R.id.nav_manage_users);
+        navManageUsers.setOnClickListener(v -> {
+            Intent intent = new Intent(this, UserListActivity.class);
+            startActivity(intent);
         });
     }
 
@@ -94,6 +86,12 @@ public class AdminDashboardActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.tv_active)).setText(String.valueOf(active));
         ((TextView) findViewById(R.id.tv_resolved)).setText(String.valueOf(resolved));
         ((TextView) findViewById(R.id.tv_escalated)).setText(String.valueOf(escalated));
+
+        // Update metrics
+        int weekResolved = dbHelper.getComplaintsResolvedInPastWeek();
+        int monthResolved = dbHelper.getComplaintsResolvedInPastMonth();
+        ((TextView) findViewById(R.id.tv_week)).setText(String.valueOf(weekResolved));
+        ((TextView) findViewById(R.id.tv_month)).setText(String.valueOf(monthResolved));
     }
 
     private void openComplaintList(String filterType) {

@@ -15,7 +15,7 @@
         android:paddingTop="48dp"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingBottom="48dp"
+        android:paddingBottom="32dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -27,48 +27,38 @@
             android:gravity="center_vertical">
 
             <ImageButton
-                android:id="@+id/back_arrow"
+                android:id="@+id/back_btn"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:src="@android:drawable/ic_menu_revert"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Back"
-                app:tint="@color/white"
-                android:layout_marginEnd="16dp" />
+                app:tint="@color/white" />
 
             <TextView
-                android:id="@+id/tv_title"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="All Complaints"
+                android:text="My Complaints"
                 android:textColor="@color/white"
-                android:textSize="24sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                android:layout_weight="1" />
+                android:layout_marginStart="16dp" />
 
         </LinearLayout>
 
     </LinearLayout>
 
-    <!-- Complaints List (Overlapping Header) -->
-    <LinearLayout
-        android:id="@+id/complaints_section"
+    <!-- Complaints List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_complaints"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:orientation="vertical"
-        android:layout_marginTop="-24dp"
+        android:layout_marginTop="24dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         app:layout_constraintTop_toBottomOf="@id/header"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_complaints"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </LinearLayout>
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

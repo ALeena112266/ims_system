@@ -28,7 +28,7 @@
                 android:layout_width="28dp"
                 android:layout_height="28dp"
                 android:src="@android:drawable/ic_menu_agenda"
-                android:tint="@color/purple_start" />
+                app:tint="@color/purple_start" />
         </LinearLayout>
 
         <LinearLayout
@@ -61,7 +61,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@android:drawable/ic_menu_send"
-            android:tint="@color/purple_start"
+            app:tint="@color/purple_start"
             android:rotation="180" />
 
     </LinearLayout>

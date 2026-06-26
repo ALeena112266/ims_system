@@ -14,7 +14,7 @@
         android:src="@android:drawable/ic_menu_revert"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Back"
-        android:tint="@color/purple_start"
+        app:tint="@color/purple_start"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
