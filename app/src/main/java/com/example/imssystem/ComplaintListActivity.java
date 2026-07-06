@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -56,6 +58,75 @@ public class ComplaintListActivity extends AppCompatActivity {
             }
         });
 
+        // Setup bottom nav (only for admin/handler)
+        LinearLayout bottomNav = findViewById(R.id.bottom_nav);
+        if ("admin".equals(userRole) || "handler".equals(userRole)) {
+            bottomNav.setVisibility(View.VISIBLE);
+
+            LinearLayout navHome = findViewById(R.id.nav_home);
+            LinearLayout navAllComplaints = findViewById(R.id.nav_all_complaints);
+            LinearLayout navManageUsers = findViewById(R.id.nav_manage_users);
+
+            // Set current item
+            if ("all".equals(filterType)) {
+                ((ImageView) navAllComplaints.getChildAt(0)).setImageTintList(getColorStateList(R.color.purple_start));
+                ((TextView) navAllComplaints.getChildAt(1)).setTextColor(getColor(R.color.purple_start));
+            } else {
+                ((ImageView) navHome.getChildAt(0)).setImageTintList(getColorStateList(R.color.purple_start));
+                ((TextView) navHome.getChildAt(1)).setTextColor(getColor(R.color.purple_start));
+            }
+
+            // Home nav
+            navHome.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent;
+                    if ("admin".equals(userRole)) {
+                        intent = new Intent(ComplaintListActivity.this, AdminDashboardActivity.class);
+                    } else {
+                        intent = new Intent(ComplaintListActivity.this, HandlerDashboardActivity.class);
+                        intent.putExtra("userDepartment", department);
+                    }
+                    intent.putExtra("userId", userId);
+                    intent.putExtra("userName", userName);
+                    intent.putExtra("userRole", userRole);
+                    startActivity(intent);
+                    finish();
+                }
+            });
+
+            // All complaints nav
+            navAllComplaints.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    filterType = "all";
+                    tvTitle.setText(getTitleForFilter(filterType));
+                    ((ImageView) navAllComplaints.getChildAt(0)).setImageTintList(getColorStateList(R.color.purple_start));
+                    ((TextView) navAllComplaints.getChildAt(1)).setTextColor(getColor(R.color.purple_start));
+                    ((ImageView) navHome.getChildAt(0)).setImageTintList(getColorStateList(R.color.gray_medium));
+                    ((TextView) navHome.getChildAt(1)).setTextColor(getColor(R.color.gray_medium));
+                    loadComplaints();
+                }
+            });
+
+            // Manage users nav (only for admin)
+            if ("admin".equals(userRole)) {
+                navManageUsers.setVisibility(View.VISIBLE);
+                navManageUsers.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(ComplaintListActivity.this, UserListActivity.class);
+                        intent.putExtra("userId", userId);
+                        intent.putExtra("userName", userName);
+                        intent.putExtra("userRole", userRole);
+                        startActivity(intent);
+                    }
+                });
+            } else {
+                navManageUsers.setVisibility(View.GONE);
+            }
+        }
+
         // Setup RecyclerView
         recyclerView = findViewById(R.id.recycler_complaints);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -66,6 +137,12 @@ public class ComplaintListActivity extends AppCompatActivity {
                     public void onItemClick(Complaint complaint) {
                         Intent intent = new Intent(ComplaintListActivity.this, ComplaintDetailsActivity.class);
                         intent.putExtra("complaintId", complaint.getId());
+                        intent.putExtra("userId", userId);
+                        intent.putExtra("userName", userName);
+                        intent.putExtra("userRole", userRole);
+                        if (department != null) {
+                            intent.putExtra("department", department);
+                        }
                         startActivity(intent);
                     }
                 },

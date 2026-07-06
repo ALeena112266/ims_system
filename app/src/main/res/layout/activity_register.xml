@@ -124,7 +124,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Institute Email"
+                    android:text="Email"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="@color/dark_blue"
@@ -168,6 +168,31 @@
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
                     android:inputType="textPassword" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Department"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/dark_blue"
+                    android:layout_marginBottom="8dp" />
+
+                <Spinner
+                    android:id="@+id/spinner_department"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/input_field_rounded"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp" />
 
             </LinearLayout>
 

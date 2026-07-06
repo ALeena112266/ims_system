@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Welcome screen dimensions (large screens) -->
+    <dimen name="welcome_padding_horizontal">40dp</dimen>
+    <dimen name="welcome_padding_bottom">40dp</dimen>
+    <dimen name="logo_width">300dp</dimen>
+    <dimen name="logo_height">190dp</dimen>
+    <dimen name="logo_margin_top">20dp</dimen>
+    <dimen name="title_margin_top">50dp</dimen>
+    <dimen name="title_margin_bottom">10dp</dimen>
+    <dimen name="button_height">60dp</dimen>
+    <dimen name="button_margin_bottom">20dp</dimen>
+    <dimen name="text_size_title">36sp</dimen>
+    <dimen name="text_size_subtitle">18sp</dimen>
+</resources>

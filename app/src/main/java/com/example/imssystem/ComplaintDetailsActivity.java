@@ -31,6 +31,7 @@ public class ComplaintDetailsActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private TimelineAdapter adapter;
     private List<StatusLog> logList;
+    private String userRole;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +40,7 @@ public class ComplaintDetailsActivity extends AppCompatActivity {
 
         dbHelper = new DBHelper(this);
         complaintId = getIntent().getIntExtra("complaintId", 0);
+        userRole = getIntent().getStringExtra("userRole");
 
         // Back button
         ImageButton backArrow = findViewById(R.id.back_arrow);
@@ -50,6 +52,17 @@ public class ComplaintDetailsActivity extends AppCompatActivity {
         });
 
         Button btnDelete = findViewById(R.id.btn_delete);
+        Button btnFeedback = findViewById(R.id.btn_feedback);
+
+        // Show/hide buttons based on role
+        if ("student".equals(userRole)) {
+            btnDelete.setVisibility(View.VISIBLE);
+        } else {
+            btnDelete.setVisibility(View.GONE);
+        }
+        // Feedback button is visible for all roles
+        btnFeedback.setVisibility(View.VISIBLE);
+
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -70,6 +83,13 @@ public class ComplaintDetailsActivity extends AppCompatActivity {
             }
         });
 
+        btnFeedback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showFeedbackDialog();
+            }
+        });
+
         // Setup Timeline RecyclerView
         recyclerView = findViewById(R.id.recycler_timeline);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -79,6 +99,26 @@ public class ComplaintDetailsActivity extends AppCompatActivity {
 
         // Load data
         loadComplaintDetails();
+    }
+
+    private void showFeedbackDialog() {
+        final EditText feedbackInput = new EditText(this);
+        feedbackInput.setHint("Enter your feedback here...");
+        feedbackInput.setPadding(48, 24, 48, 24);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Submit Feedback")
+                .setView(feedbackInput)
+                .setPositiveButton("Submit", (dialog, which) -> {
+                    String feedback = feedbackInput.getText().toString().trim();
+                    if (!feedback.isEmpty()) {
+                        Toast.makeText(this, "Thank you for your feedback!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Please enter feedback", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void loadComplaintDetails() {

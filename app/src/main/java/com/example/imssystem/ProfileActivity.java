@@ -2,9 +2,8 @@ package com.example.imssystem;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.imssystem.helpers.DBHelper;
@@ -13,6 +12,7 @@ import com.example.imssystem.models.User;
 public class ProfileActivity extends AppCompatActivity {
     private DBHelper dbHelper;
     private int userId;
+    private String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,9 +21,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         dbHelper = new DBHelper(this);
         userId = getIntent().getIntExtra("userId", 0);
-
-        ImageButton backBtn = findViewById(R.id.back_btn);
-        backBtn.setOnClickListener(v -> finish());
+        userName = getIntent().getStringExtra("userName");
 
         Button btnLogout = findViewById(R.id.btn_logout);
         btnLogout.setOnClickListener(v -> {
@@ -33,6 +31,7 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         loadUserInfo();
+        setupBottomNav();
     }
 
     private void loadUserInfo() {
@@ -51,5 +50,40 @@ public class ProfileActivity extends AppCompatActivity {
                 tvAvatar.setText(user.getName().substring(0, 1).toUpperCase());
             }
         }
+    }
+
+    private void setupBottomNav() {
+        LinearLayout navHome = findViewById(R.id.nav_home);
+        LinearLayout navHistory = findViewById(R.id.nav_history);
+        LinearLayout navAlerts = findViewById(R.id.nav_alerts);
+        LinearLayout navProfile = findViewById(R.id.nav_profile);
+
+        navHome.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, DashboardActivity.class);
+            intent.putExtra("userId", userId);
+            intent.putExtra("userName", userName);
+            startActivity(intent);
+            finish();
+        });
+
+        navHistory.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, HistoryActivity.class);
+            intent.putExtra("userId", userId);
+            intent.putExtra("userName", userName);
+            startActivity(intent);
+            finish();
+        });
+
+        navAlerts.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, AlertsActivity.class);
+            intent.putExtra("userId", userId);
+            intent.putExtra("userName", userName);
+            startActivity(intent);
+            finish();
+        });
+
+        navProfile.setOnClickListener(v -> {
+            // Already on profile
+        });
     }
 }

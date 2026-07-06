@@ -46,12 +46,15 @@ public class DashboardActivity extends AppCompatActivity {
         navHistory.setOnClickListener(v -> {
             Intent intent = new Intent(DashboardActivity.this, HistoryActivity.class);
             intent.putExtra("userId", userId);
+            intent.putExtra("userName", userName);
             startActivity(intent);
         });
 
         LinearLayout navAlerts = findViewById(R.id.nav_alerts);
         navAlerts.setOnClickListener(v -> {
             Intent intent = new Intent(DashboardActivity.this, AlertsActivity.class);
+            intent.putExtra("userId", userId);
+            intent.putExtra("userName", userName);
             startActivity(intent);
         });
 
@@ -59,6 +62,7 @@ public class DashboardActivity extends AppCompatActivity {
         navProfile.setOnClickListener(v -> {
             Intent intent = new Intent(DashboardActivity.this, ProfileActivity.class);
             intent.putExtra("userId", userId);
+            intent.putExtra("userName", userName);
             startActivity(intent);
         });
     }
