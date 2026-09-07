@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1063378519257",
+    "project_id": "ims-complaint-system-17691",
+    "storage_bucket": "ims-complaint-system-17691.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1063378519257:android:47b42c9ae28cb1035aeac8",
+        "android_client_info": {
+          "package_name": "com.example.imssystem"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyyNVuE7I0Oh4RptIH9TLlYwJ0434Ox9c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
