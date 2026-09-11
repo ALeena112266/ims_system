@@ -294,7 +294,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_home"
+                android:src="@drawable/ic_menu_home"
                 app:tint="@color/purple_start" />
 
             <TextView
@@ -318,7 +318,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_sort_by_size"
+                android:src="@drawable/ic_menu_sort_by_size"
                 app:tint="@color/gray_medium" />
 
             <TextView
@@ -342,7 +342,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@android:drawable/ic_dialog_alert"
+                android:src="@drawable/ic_dialog_alert"
                 app:tint="@color/gray_medium" />
 
             <TextView
@@ -366,7 +366,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_myplaces"
+                android:src="@drawable/ic_menu_myplaces"
                 app:tint="@color/gray_medium" />
 
             <TextView

@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.imssystem.helpers.DBHelper;
+import com.example.imssystem.helpers.FirebaseRepository;
 import com.example.imssystem.models.User;
 
 public class LoginActivity extends AppCompatActivity {
@@ -20,23 +20,20 @@ public class LoginActivity extends AppCompatActivity {
     private Button loginBtn;
     private TextView signupText;
     private ImageButton backArrow;
-    private DBHelper dbHelper;
+    private FirebaseRepository repo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        dbHelper = new DBHelper(this);
+        repo = FirebaseRepository.getInstance();
 
         etEmail = findViewById(R.id.et_email);
         etPassword = findViewById(R.id.et_password);
         loginBtn = findViewById(R.id.login_btn);
         signupText = findViewById(R.id.signup_text);
         backArrow = findViewById(R.id.back_arrow);
-
-        // Add hints to login layout (we forgot to add EditText ids in login.xml earlier! Oops!)
-        // Let's first update login.xml to add EditText with proper ids!
 
         backArrow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,25 +53,62 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
 
-                User user = dbHelper.checkLogin(email, password);
-        if (user != null) {
-            Intent intent;
-            if (user.getRole().equals("student")) {
-                intent = new Intent(LoginActivity.this, DashboardActivity.class);
-            } else if (user.getRole().equals("handler")) {
-                intent = new Intent(LoginActivity.this, HandlerDashboardActivity.class);
-                intent.putExtra("userDepartment", user.getDepartment());
-            } else {
-                intent = new Intent(LoginActivity.this, AdminDashboardActivity.class);
-            }
-            intent.putExtra("userId", user.getId());
-            intent.putExtra("userName", user.getName());
-            intent.putExtra("userRole", user.getRole());
-            startActivity(intent);
-            finish();
-        } else {
-            Toast.makeText(LoginActivity.this, "Invalid email or password", Toast.LENGTH_SHORT).show();
-        }
+                loginBtn.setEnabled(false);
+
+                repo.checkLogin(email, password, new FirebaseRepository.OnCompleteListener<User>() {
+                    @Override
+                    public void onSuccess(User user) {
+                        loginBtn.setEnabled(true);
+                        if (user != null) {
+                            String role = user.getRole() != null ? user.getRole().trim().toLowerCase() : "";
+                            Intent intent;
+                            String roleDisplay;
+                            if ("admin".equals(role)) {
+                                intent = new Intent(LoginActivity.this, AdminDashboardActivity.class);
+                                roleDisplay = "Admin";
+                            } else if ("handler".equals(role)) {
+                                intent = new Intent(LoginActivity.this, HandlerDashboardActivity.class);
+                                String dep = user.getDepartment();
+                                if (dep == null || dep.trim().isEmpty()) dep = "General";
+                                intent.putExtra("userDepartment", dep);
+                                roleDisplay = "Handler (" + dep + ")";
+                            } else if ("student".equals(role)) {
+                                intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                                roleDisplay = "Student";
+                            } else {
+                                roleDisplay = role.isEmpty() ? "not set" : role;
+                                Toast.makeText(LoginActivity.this,
+                                        "Role not recognized (" + roleDisplay + ") — logged in as Student. Ask admin to set your role.",
+                                        Toast.LENGTH_LONG).show();
+                                intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                            }
+                            Toast.makeText(LoginActivity.this,
+                                    "Welcome " + user.getName() + "! Logged in as: " + roleDisplay,
+                                    Toast.LENGTH_SHORT).show();
+
+                            try {
+                                intent.putExtra("userId", user.getId());
+                                intent.putExtra("userName", user.getName());
+                                intent.putExtra("userRole", user.getRole());
+                                startActivity(intent);
+                                finish();
+                            } catch (Exception e) {
+                                Toast.makeText(LoginActivity.this,
+                                        "ERROR launching dashboard: " + e.getClass().getSimpleName() + " — " + e.getMessage(),
+                                        Toast.LENGTH_LONG).show();
+
+                            }
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Invalid email or password", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        loginBtn.setEnabled(true);
+                        Toast.makeText(LoginActivity.this, "Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
 

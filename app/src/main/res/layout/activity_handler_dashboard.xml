@@ -54,7 +54,7 @@
             <ImageButton
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@android:drawable/ic_menu_revert"
+                android:src="@drawable/ic_menu_revert"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Logout"
                 app:tint="@color/white"

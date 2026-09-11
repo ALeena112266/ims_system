@@ -11,32 +11,33 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.imssystem.helpers.DBHelper;
+import com.example.imssystem.helpers.FirebaseRepository;
 import com.example.imssystem.models.User;
 
 public class SignupActivity extends AppCompatActivity {
     private EditText etFullName, etStudentId, etEmail, etPassword;
     private Spinner spinnerDepartment;
-    private DBHelper dbHelper;
+    private Button signupBtn;
+    private TextView loginText;
+    private ImageButton backArrow;
+    private FirebaseRepository repo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-        dbHelper = new DBHelper(this);
+        repo = FirebaseRepository.getInstance();
 
         etFullName = findViewById(R.id.et_full_name);
         etStudentId = findViewById(R.id.et_student_id);
         etEmail = findViewById(R.id.et_email);
         etPassword = findViewById(R.id.et_password);
         spinnerDepartment = findViewById(R.id.spinner_department);
+        signupBtn = findViewById(R.id.signup_btn);
+        loginText = findViewById(R.id.login_text);
+        backArrow = findViewById(R.id.back_arrow);
 
-        Button signupBtn = findViewById(R.id.signup_btn);
-        TextView loginText = findViewById(R.id.login_text);
-        ImageButton backArrow = findViewById(R.id.back_arrow);
-
-        // Setup department spinner
         String[] departments = {
             "Computer Science",
             "Electrical Engineering",
@@ -66,23 +67,28 @@ public class SignupActivity extends AppCompatActivity {
                     return;
                 }
 
-                if (dbHelper.isEmailExists(email)) {
-                    Toast.makeText(SignupActivity.this, "Email already exists", Toast.LENGTH_SHORT).show();
+                if (password.length() < 6) {
+                    Toast.makeText(SignupActivity.this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                // Only students can sign up via this form
-                User user = new User(fullName, email, "student", department, studentId, password);
-                long userId = dbHelper.addUser(user);
+                signupBtn.setEnabled(false);
+                repo.isEmailExists(email, new FirebaseRepository.OnCompleteListener<Boolean>() {
+                    @Override
+                    public void onSuccess(Boolean exists) {
+                        if (exists) {
+                            signupBtn.setEnabled(true);
+                            Toast.makeText(SignupActivity.this, "Email already exists", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        doSignup(fullName, studentId, email, password, department);
+                    }
 
-                if (userId != -1) {
-                    Toast.makeText(SignupActivity.this, "Signup successful!", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    Toast.makeText(SignupActivity.this, "Signup failed", Toast.LENGTH_SHORT).show();
-                }
+                    @Override
+                    public void onFailure(Exception e) {
+                        doSignup(fullName, studentId, email, password, department);
+                    }
+                });
             }
         });
 
@@ -98,6 +104,27 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+    }
+
+    private void doSignup(String fullName, String studentId, String email,
+                          String password, String department) {
+        User user = new User(fullName, email, "student", department, studentId, password);
+        repo.registerUser(user, new FirebaseRepository.OnCompleteListener<String>() {
+            @Override
+            public void onSuccess(String userId) {
+                signupBtn.setEnabled(true);
+                Toast.makeText(SignupActivity.this, "Signup successful!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                signupBtn.setEnabled(true);
+                Toast.makeText(SignupActivity.this, "Signup failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

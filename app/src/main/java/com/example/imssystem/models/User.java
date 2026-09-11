@@ -1,10 +1,10 @@
 package com.example.imssystem.models;
 
 public class User {
-    private int id;
+    private String id;
     private String name;
     private String email;
-    private String role; // "student", "handler", "admin"
+    private String role;
     private String department;
     private String studentId;
     private String password;
@@ -21,11 +21,11 @@ public class User {
         this.password = password;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -11,14 +11,14 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.imssystem.adapters.ComplaintAdapter;
-import com.example.imssystem.helpers.DBHelper;
+import com.example.imssystem.helpers.FirebaseRepository;
 import com.example.imssystem.models.Complaint;
 import java.util.ArrayList;
 import java.util.List;
 
 public class HistoryActivity extends AppCompatActivity {
-    private DBHelper dbHelper;
-    private int userId;
+    private FirebaseRepository repo;
+    private String userId;
     private String userName;
     private RecyclerView recyclerView;
     private ComplaintAdapter adapter;
@@ -29,8 +29,8 @@ public class HistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
 
-        dbHelper = new DBHelper(this);
-        userId = getIntent().getIntExtra("userId", 0);
+        repo = FirebaseRepository.getInstance();
+        userId = getIntent().getStringExtra("userId");
         userName = getIntent().getStringExtra("userName");
 
         recyclerView = findViewById(R.id.recycler_complaints);
@@ -52,7 +52,6 @@ public class HistoryActivity extends AppCompatActivity {
                 "student");
         recyclerView.setAdapter(adapter);
 
-        // Bottom Navigation Setup
         setupBottomNav();
     }
 
@@ -63,9 +62,22 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void loadComplaints() {
-        complaintList.clear();
-        complaintList.addAll(dbHelper.getAllComplaintsByStudentId(userId));
-        adapter.notifyDataSetChanged();
+        repo.getAllComplaintsByStudentId(userId, new FirebaseRepository.OnCompleteListener<List<Complaint>>() {
+            @Override
+            public void onSuccess(List<Complaint> result) {
+                complaintList.clear();
+                if (result != null) {
+                    complaintList.addAll(result);
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                complaintList.clear();
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void setupBottomNav() {
@@ -83,7 +95,6 @@ public class HistoryActivity extends AppCompatActivity {
         });
 
         navHistory.setOnClickListener(v -> {
-            // Already on history
         });
 
         navAlerts.setOnClickListener(v -> {

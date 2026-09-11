@@ -7,11 +7,13 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.imssystem.helpers.DBHelper;
+import com.example.imssystem.helpers.FirebaseRepository;
+import com.example.imssystem.models.Complaint;
+import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity {
-    private DBHelper dbHelper;
-    private int userId;
+    private FirebaseRepository repo;
+    private String userId;
     private String userName;
     private TextView tvTotalComplaints;
 
@@ -20,8 +22,8 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        dbHelper = new DBHelper(this);
-        userId = getIntent().getIntExtra("userId", 0);
+        repo = FirebaseRepository.getInstance();
+        userId = getIntent().getStringExtra("userId");
         userName = getIntent().getStringExtra("userName");
 
         TextView tvUserName = findViewById(R.id.tv_user_name);
@@ -74,7 +76,16 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void updateStats() {
-        int total = dbHelper.getAllComplaintsByStudentId(userId).size();
-        tvTotalComplaints.setText(String.valueOf(total));
+        repo.getAllComplaintsByStudentId(userId, new FirebaseRepository.OnCompleteListener<List<Complaint>>() {
+            @Override
+            public void onSuccess(List<Complaint> result) {
+                tvTotalComplaints.setText(String.valueOf(result != null ? result.size() : 0));
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                tvTotalComplaints.setText("0");
+            }
+        });
     }
 }

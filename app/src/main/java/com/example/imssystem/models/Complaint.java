@@ -1,8 +1,8 @@
 package com.example.imssystem.models;
 
 public class Complaint {
-    private int id;
-    private int studentId;
+    private String id;
+    private String studentId;
     private String studentName;
     private String category;
     private String department;
@@ -17,7 +17,7 @@ public class Complaint {
     public Complaint() {
     }
 
-    public Complaint(int studentId, String studentName, String category, String department, String title, String description, String priority, String status, String createdAt) {
+    public Complaint(String studentId, String studentName, String category, String department, String title, String description, String priority, String status, String createdAt) {
         this.studentId = studentId;
         this.studentName = studentName;
         this.category = category;
@@ -37,19 +37,19 @@ public class Complaint {
         this.attachmentUri = attachmentUri;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public int getStudentId() {
+    public String getStudentId() {
         return studentId;
     }
 
-    public void setStudentId(int studentId) {
+    public void setStudentId(String studentId) {
         this.studentId = studentId;
     }
 

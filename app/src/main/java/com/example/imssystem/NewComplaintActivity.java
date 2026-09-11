@@ -23,7 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
-import com.example.imssystem.helpers.DBHelper;
+import com.example.imssystem.helpers.FirebaseRepository;
 import com.example.imssystem.models.Complaint;
 
 import java.io.File;
@@ -32,16 +32,17 @@ import java.util.Date;
 import java.util.Locale;
 
 public class NewComplaintActivity extends AppCompatActivity {
-    private DBHelper dbHelper;
+    private FirebaseRepository repo;
     private EditText etTitle, etDescription;
     private TextView chipIt, chipHostel, chipAcademic, chipTransport, chipAccounts, chipLibrary, chipOthers;
     private TextView priorityLow, priorityMedium, priorityHigh;
     private TextView tvAttachment;
+    private Button btnNext;
     private String selectedCategory = "IT Support";
     private String selectedDepartment = "IT Support";
     private String selectedPriority = "High";
     private String attachmentUri = null;
-    private int userId;
+    private String userId;
     private String userName;
     private Uri cameraImageUri = null;
 
@@ -51,147 +52,150 @@ public class NewComplaintActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_complaint);
+        try {
+            setContentView(R.layout.activity_new_complaint);
 
-        dbHelper = new DBHelper(this);
-        userId = getIntent().getIntExtra("userId", 0);
-        userName = getIntent().getStringExtra("userName");
+            repo = FirebaseRepository.getInstance();
+            userId = getIntent().getStringExtra("userId");
+            userName = getIntent().getStringExtra("userName");
 
-        etTitle = findViewById(R.id.et_title);
-        etDescription = findViewById(R.id.et_description);
+            etTitle = findViewById(R.id.et_title);
+            etDescription = findViewById(R.id.et_description);
 
-        chipIt = findViewById(R.id.chip_it);
-        chipHostel = findViewById(R.id.chip_hostel);
-        chipAcademic = findViewById(R.id.chip_academic);
-        chipTransport = findViewById(R.id.chip_transport);
-        chipAccounts = findViewById(R.id.chip_accounts);
-        chipLibrary = findViewById(R.id.chip_library);
-        chipOthers = findViewById(R.id.chip_others);
+            chipIt = findViewById(R.id.chip_it);
+            chipHostel = findViewById(R.id.chip_hostel);
+            chipAcademic = findViewById(R.id.chip_academic);
+            chipTransport = findViewById(R.id.chip_transport);
+            chipAccounts = findViewById(R.id.chip_accounts);
+            chipLibrary = findViewById(R.id.chip_library);
+            chipOthers = findViewById(R.id.chip_others);
 
-        priorityLow = findViewById(R.id.priority_low);
-        priorityMedium = findViewById(R.id.priority_medium);
-        priorityHigh = findViewById(R.id.priority_high);
+            priorityLow = findViewById(R.id.priority_low);
+            priorityMedium = findViewById(R.id.priority_medium);
+            priorityHigh = findViewById(R.id.priority_high);
 
-        tvAttachment = findViewById(R.id.tv_attachment);
+            tvAttachment = findViewById(R.id.tv_attachment);
 
-        // Initialize file picker
-        filePickerLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                            Uri uri = result.getData().getData();
-                            if (uri != null) {
-                                attachmentUri = uri.toString();
-                                tvAttachment.setText("File selected: " + uri.getLastPathSegment());
-                                tvAttachment.setTextColor(ContextCompat.getColor(NewComplaintActivity.this, R.color.purple_start));
+            filePickerLauncher = registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    new ActivityResultCallback<ActivityResult>() {
+                        @Override
+                        public void onActivityResult(ActivityResult result) {
+                            if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                                Uri uri = result.getData().getData();
+                                if (uri != null) {
+                                    attachmentUri = uri.toString();
+                                    tvAttachment.setText("File selected: " + uri.getLastPathSegment());
+                                    tvAttachment.setTextColor(ContextCompat.getColor(NewComplaintActivity.this, R.color.purple_start));
+                                }
                             }
                         }
                     }
-                }
-        );
+            );
 
-        // Initialize camera launcher
-        cameraLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == Activity.RESULT_OK) {
-                            if (cameraImageUri != null) {
-                                attachmentUri = cameraImageUri.toString();
-                                tvAttachment.setText("Photo captured!");
-                                tvAttachment.setTextColor(ContextCompat.getColor(NewComplaintActivity.this, R.color.purple_start));
+            cameraLauncher = registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    new ActivityResultCallback<ActivityResult>() {
+                        @Override
+                        public void onActivityResult(ActivityResult result) {
+                            if (result.getResultCode() == Activity.RESULT_OK) {
+                                if (cameraImageUri != null) {
+                                    attachmentUri = cameraImageUri.toString();
+                                    tvAttachment.setText("Photo captured!");
+                                    tvAttachment.setTextColor(ContextCompat.getColor(NewComplaintActivity.this, R.color.purple_start));
+                                }
                             }
                         }
                     }
+            );
+
+            View attachmentArea = findViewById(R.id.attachment_area);
+            if (attachmentArea != null) {
+                attachmentArea.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showAttachmentOptions();
+                    }
+                });
+            } else {
+                Toast.makeText(this,
+                        "Internal error — attachment_area not found", Toast.LENGTH_LONG).show();
+            }
+
+            if (getIntent().hasExtra("templateTitle")) {
+                etTitle.setText(getIntent().getStringExtra("templateTitle"));
+            }
+            if (getIntent().hasExtra("templateDescription")) {
+                etDescription.setText(getIntent().getStringExtra("templateDescription"));
+            }
+            if (getIntent().hasExtra("templatePriority")) {
+                setPriority(getIntent().getStringExtra("templatePriority"));
+            }
+            if (getIntent().hasExtra("templateDepartment")) {
+                String dep = getIntent().getStringExtra("templateDepartment");
+                if (dep != null) {
+                    if (dep.contains("IT")) {
+                        selectCategory("IT Support", "IT Support", chipIt);
+                    } else if (dep.contains("Hostel")) {
+                        selectCategory("Hostel", "Hostel Admin", chipHostel);
+                    } else if (dep.contains("Academic")) {
+                        selectCategory("Academics", "Academics", chipAcademic);
+                    } else if (dep.contains("Transport")) {
+                        selectCategory("Transport", "Transport", chipTransport);
+                    } else if (dep.contains("Accounts")) {
+                        selectCategory("Accounts", "Accounts", chipAccounts);
+                    } else if (dep.contains("Library")) {
+                        selectCategory("Library", "Library", chipLibrary);
+                    }
                 }
-        );
-
-        // Set attachment click listener
-        View attachmentArea = findViewById(R.id.layout_attachment);
-        attachmentArea.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAttachmentOptions();
             }
-        });
 
-        // Populate fields if template is selected
-        if (getIntent().hasExtra("templateTitle")) {
-            etTitle.setText(getIntent().getStringExtra("templateTitle"));
-        }
-        if (getIntent().hasExtra("templateDescription")) {
-            etDescription.setText(getIntent().getStringExtra("templateDescription"));
-        }
-        if (getIntent().hasExtra("templatePriority")) {
-            setPriority(getIntent().getStringExtra("templatePriority"));
-        }
-        if (getIntent().hasExtra("templateDepartment")) {
-            String dep = getIntent().getStringExtra("templateDepartment");
-            if (dep != null) {
-                if (dep.contains("IT")) {
-                    selectCategory("IT Support", "IT Support", chipIt);
-                } else if (dep.contains("Hostel")) {
-                    selectCategory("Hostel", "Hostel Admin", chipHostel);
-                } else if (dep.contains("Academic")) {
-                    selectCategory("Academics", "Academics", chipAcademic);
-                } else if (dep.contains("Transport")) {
-                    selectCategory("Transport", "Transport", chipTransport);
-                } else if (dep.contains("Accounts")) {
-                    selectCategory("Accounts", "Accounts", chipAccounts);
-                } else if (dep.contains("Library")) {
-                    selectCategory("Library", "Library", chipLibrary);
+            ImageButton backArrow = findViewById(R.id.back_arrow);
+            backArrow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
                 }
-            }
+            });
+
+            Button btnBack = findViewById(R.id.btn_back);
+            btnBack.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+
+            btnNext = findViewById(R.id.btn_next);
+            btnNext.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    btnNext.setEnabled(false);
+                    submitComplaint();
+                }
+            });
+
+            chipIt.setOnClickListener(v -> selectCategory("IT Support", "IT Support", chipIt));
+            chipHostel.setOnClickListener(v -> selectCategory("Hostel", "Hostel Admin", chipHostel));
+            chipAcademic.setOnClickListener(v -> selectCategory("Academics", "Academics", chipAcademic));
+            chipTransport.setOnClickListener(v -> selectCategory("Transport", "Transport", chipTransport));
+            chipAccounts.setOnClickListener(v -> selectCategory("Accounts", "Accounts", chipAccounts));
+            chipLibrary.setOnClickListener(v -> selectCategory("Library", "Library", chipLibrary));
+            chipOthers.setOnClickListener(v -> selectCategory("Others", "General", chipOthers));
+
+            priorityLow.setOnClickListener(v -> setPriority("Low"));
+            priorityMedium.setOnClickListener(v -> setPriority("Medium"));
+            priorityHigh.setOnClickListener(v -> setPriority("High"));
+        } catch (Exception e) {
+            Toast.makeText(this, "Error loading form: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
         }
-
-        // Back button
-        ImageButton backArrow = findViewById(R.id.back_arrow);
-        backArrow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
-        Button btnBack = findViewById(R.id.btn_back);
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
-        Button btnNext = findViewById(R.id.btn_next);
-        btnNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                submitComplaint();
-            }
-        });
-
-        // Category chip listeners
-        chipIt.setOnClickListener(v -> selectCategory("IT Support", "IT Support", chipIt));
-        chipHostel.setOnClickListener(v -> selectCategory("Hostel", "Hostel Admin", chipHostel));
-        chipAcademic.setOnClickListener(v -> selectCategory("Academics", "Academics", chipAcademic));
-        chipTransport.setOnClickListener(v -> selectCategory("Transport", "Transport", chipTransport));
-        chipAccounts.setOnClickListener(v -> selectCategory("Accounts", "Accounts", chipAccounts));
-        chipLibrary.setOnClickListener(v -> selectCategory("Library", "Library", chipLibrary));
-        chipOthers.setOnClickListener(v -> selectCategory("Others", "General", chipOthers));
-
-        // Priority listeners
-        priorityLow.setOnClickListener(v -> setPriority("Low"));
-        priorityMedium.setOnClickListener(v -> setPriority("Medium"));
-        priorityHigh.setOnClickListener(v -> setPriority("High"));
     }
 
     private void selectCategory(String category, String department, TextView selectedChip) {
         selectedCategory = category;
         selectedDepartment = department;
 
-        // Reset all chips
         resetChip(chipIt);
         resetChip(chipHostel);
         resetChip(chipAcademic);
@@ -200,7 +204,6 @@ public class NewComplaintActivity extends AppCompatActivity {
         resetChip(chipLibrary);
         resetChip(chipOthers);
 
-        // Highlight selected chip
         selectedChip.setBackgroundResource(R.drawable.chip_selected);
         selectedChip.setTextColor(ContextCompat.getColor(this, R.color.purple_start));
     }
@@ -213,12 +216,10 @@ public class NewComplaintActivity extends AppCompatActivity {
     private void setPriority(String priority) {
         selectedPriority = priority;
 
-        // Reset all priorities
         resetPriority(priorityLow, R.color.status_resolved, R.drawable.priority_low);
         resetPriority(priorityMedium, R.color.status_pending, R.drawable.priority_medium);
         resetPriority(priorityHigh, R.color.status_escalated, R.drawable.priority_high);
 
-        // Highlight selected priority
         switch (priority) {
             case "Low":
                 priorityLow.setBackgroundResource(R.drawable.priority_low);
@@ -249,22 +250,31 @@ public class NewComplaintActivity extends AppCompatActivity {
 
         if (TextUtils.isEmpty(title) || TextUtils.isEmpty(description)) {
             Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
+            if (btnNext != null) btnNext.setEnabled(true);
             return;
         }
 
         Complaint complaint = new Complaint(userId, userName, selectedCategory, selectedDepartment, title, description, selectedPriority, "Submitted", "");
         complaint.setAttachmentUri(attachmentUri);
-        long complaintId = dbHelper.addComplaint(complaint);
 
-        if (complaintId != -1) {
-            Toast.makeText(this, "Complaint submitted successfully!", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, DashboardActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        } else {
-            Toast.makeText(this, "Failed to submit complaint", Toast.LENGTH_SHORT).show();
-        }
+        repo.addComplaint(complaint, new FirebaseRepository.OnCompleteListener<String>() {
+            @Override
+            public void onSuccess(String result) {
+                Toast.makeText(NewComplaintActivity.this, "Complaint submitted successfully!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(NewComplaintActivity.this, DashboardActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.putExtra("userId", userId);
+                intent.putExtra("userName", userName);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(NewComplaintActivity.this, "Failed to submit complaint: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                if (btnNext != null) btnNext.setEnabled(true);
+            }
+        });
     }
 
     private void showAttachmentOptions() {

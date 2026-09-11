@@ -52,9 +52,13 @@ public class ComplaintAdapter extends RecyclerView.Adapter<ComplaintAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Complaint complaint = complaintList.get(position);
-        holder.tvTitle.setText(complaint.getTitle());
-        holder.tvCategory.setText(complaint.getCategory() + " • " + complaint.getStatus());
-        holder.tvDate.setText(complaint.getCreatedAt().split(" ")[0]);
+        String title = complaint.getTitle() != null ? complaint.getTitle() : "";
+        String category = complaint.getCategory() != null ? complaint.getCategory() : "";
+        String status = complaint.getStatus() != null ? complaint.getStatus() : "";
+        String createdAt = complaint.getCreatedAt() != null ? complaint.getCreatedAt() : "";
+        holder.tvTitle.setText(title);
+        holder.tvCategory.setText(category + " • " + status);
+        holder.tvDate.setText(createdAt.contains(" ") ? createdAt.split(" ")[0] : createdAt);
 
         // Set status dot color
         int colorRes = getStatusColor(complaint.getStatus());

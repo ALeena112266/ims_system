@@ -44,25 +44,25 @@ public class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.Templa
     public void onBindViewHolder(@NonNull TemplateViewHolder holder, int position) {
         Template template = templateList.get(position);
         holder.templateName.setText(template.getName());
-        if (template.getId() == -1) {
+        if (template.getId() == null || template.getId().isEmpty()) {
             holder.templateDepartment.setText("Fill in all fields manually");
         } else {
             holder.templateDepartment.setText("Routes to " + template.getDepartment());
         }
 
         // Set correct icon based on template
-        if (template.getId() == -1) {
-            holder.templateIcon.setImageResource(android.R.drawable.ic_menu_edit);
+        if (template.getId() == null || template.getId().isEmpty()) {
+            holder.templateIcon.setImageResource(R.drawable.ic_menu_edit);
         } else if (template.getName().toLowerCase().contains("wi-fi") || template.getName().toLowerCase().contains("network")) {
-            holder.templateIcon.setImageResource(android.R.drawable.ic_menu_info_details);
+            holder.templateIcon.setImageResource(R.drawable.ic_menu_info_details);
         } else if (template.getName().toLowerCase().contains("hostel") || template.getName().toLowerCase().contains("cleanliness")) {
-            holder.templateIcon.setImageResource(android.R.drawable.ic_menu_myplaces);
+            holder.templateIcon.setImageResource(R.drawable.ic_menu_myplaces);
         } else if (template.getName().toLowerCase().contains("transport") || template.getName().toLowerCase().contains("delay")) {
-            holder.templateIcon.setImageResource(android.R.drawable.ic_menu_directions);
+            holder.templateIcon.setImageResource(R.drawable.ic_menu_directions);
         } else if (template.getName().toLowerCase().contains("fee") || template.getName().toLowerCase().contains("query")) {
-            holder.templateIcon.setImageResource(android.R.drawable.ic_menu_my_calendar);
+            holder.templateIcon.setImageResource(R.drawable.ic_menu_my_calendar);
         } else {
-            holder.templateIcon.setImageResource(android.R.drawable.ic_menu_agenda);
+            holder.templateIcon.setImageResource(R.drawable.ic_menu_agenda);
         }
 
         // Handle selected state

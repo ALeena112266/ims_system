@@ -169,7 +169,7 @@ public class DBHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 com.example.imssystem.models.Template template = new com.example.imssystem.models.Template();
-                template.setId(cursor.getInt(cursor.getColumnIndexOrThrow("id")));
+                template.setId(String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow("id"))));
                 template.setName(cursor.getString(cursor.getColumnIndexOrThrow("name")));
                 template.setCategory(cursor.getString(cursor.getColumnIndexOrThrow("category")));
                 template.setDepartment(cursor.getString(cursor.getColumnIndexOrThrow("department")));
@@ -207,7 +207,7 @@ public class DBHelper extends SQLiteOpenHelper {
         User user = null;
         if (cursor != null && cursor.moveToFirst()) {
             user = new User();
-            user.setId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_USER_ID)));
+            user.setId(String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_USER_ID))));
             user.setName(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_NAME)));
             user.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_EMAIL)));
             user.setRole(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_ROLE)));
@@ -248,18 +248,18 @@ public class DBHelper extends SQLiteOpenHelper {
         return id;
     }
 
-    public List<Complaint> getAllComplaintsByStudentId(int studentId) {
+    public List<Complaint> getAllComplaintsByStudentId(String studentId) {
         List<Complaint> complaintList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_COMPLAINTS, null,
                 KEY_COMPLAINT_STUDENT_ID + "=?",
-                new String[]{String.valueOf(studentId)},
+                new String[]{studentId},
                 null, null, KEY_COMPLAINT_CREATED_AT + " DESC");
         if (cursor.moveToFirst()) {
             do {
                 Complaint complaint = new Complaint();
-                complaint.setId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_ID)));
-                complaint.setStudentId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_STUDENT_ID)));
+                complaint.setId(String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_ID))));
+                complaint.setStudentId(cursor.getString(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_STUDENT_ID)));
                 complaint.setStudentName(cursor.getString(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_STUDENT_NAME)));
                 complaint.setCategory(cursor.getString(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_CATEGORY)));
                 complaint.setDepartment(cursor.getString(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_DEPARTMENT)));
@@ -277,16 +277,16 @@ public class DBHelper extends SQLiteOpenHelper {
         return complaintList;
     }
 
-    public Complaint getComplaintById(int complaintId) {
+    public Complaint getComplaintById(String complaintId) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_COMPLAINTS, null,
                 KEY_COMPLAINT_ID + "=?",
-                new String[]{String.valueOf(complaintId)}, null, null, null);
+                new String[]{complaintId}, null, null, null);
         Complaint complaint = null;
         if (cursor != null && cursor.moveToFirst()) {
             complaint = new Complaint();
-            complaint.setId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_ID)));
-            complaint.setStudentId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_STUDENT_ID)));
+            complaint.setId(String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_ID))));
+            complaint.setStudentId(cursor.getString(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_STUDENT_ID)));
             complaint.setStudentName(cursor.getString(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_STUDENT_NAME)));
             complaint.setCategory(cursor.getString(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_CATEGORY)));
             complaint.setDepartment(cursor.getString(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_DEPARTMENT)));
@@ -302,7 +302,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return complaint;
     }
 
-    public int updateComplaintStatus(int complaintId, String newStatus, String updatedBy, String note) {
+    public int updateComplaintStatus(String complaintId, String newStatus, String updatedBy, String note) {
         Complaint complaint = getComplaintById(complaintId);
         if (complaint == null) return 0;
 
@@ -316,7 +316,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         int rows = db.update(TABLE_COMPLAINTS, values,
                 KEY_COMPLAINT_ID + "=?",
-                new String[]{String.valueOf(complaintId)});
+                new String[]{complaintId});
         db.close();
         return rows;
     }
@@ -329,8 +329,8 @@ public class DBHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 Complaint complaint = new Complaint();
-                complaint.setId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_ID)));
-                complaint.setStudentId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_STUDENT_ID)));
+                complaint.setId(String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_ID))));
+                complaint.setStudentId(cursor.getString(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_STUDENT_ID)));
                 complaint.setStudentName(cursor.getString(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_STUDENT_NAME)));
                 complaint.setCategory(cursor.getString(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_CATEGORY)));
                 complaint.setDepartment(cursor.getString(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_DEPARTMENT)));
@@ -358,8 +358,8 @@ public class DBHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 Complaint complaint = new Complaint();
-                complaint.setId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_ID)));
-                complaint.setStudentId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_STUDENT_ID)));
+                complaint.setId(String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_ID))));
+                complaint.setStudentId(cursor.getString(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_STUDENT_ID)));
                 complaint.setStudentName(cursor.getString(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_STUDENT_NAME)));
                 complaint.setCategory(cursor.getString(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_CATEGORY)));
                 complaint.setDepartment(cursor.getString(cursor.getColumnIndexOrThrow(KEY_COMPLAINT_DEPARTMENT)));
@@ -378,7 +378,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     // Status log methods
-    public void addStatusLog(int complaintId, String updatedBy, String oldStatus, String newStatus, String note) {
+    public void addStatusLog(String complaintId, String updatedBy, String oldStatus, String newStatus, String note) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_LOG_COMPLAINT_ID, complaintId);
@@ -391,18 +391,18 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public List<StatusLog> getStatusLogsByComplaintId(int complaintId) {
+    public List<StatusLog> getStatusLogsByComplaintId(String complaintId) {
         List<StatusLog> logList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_STATUS_LOGS, null,
                 KEY_LOG_COMPLAINT_ID + "=?",
-                new String[]{String.valueOf(complaintId)},
+                new String[]{complaintId},
                 null, null, KEY_LOG_TIMESTAMP + " ASC");
         if (cursor.moveToFirst()) {
             do {
                 StatusLog log = new StatusLog();
-                log.setId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LOG_ID)));
-                log.setComplaintId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LOG_COMPLAINT_ID)));
+                log.setId(String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LOG_ID))));
+                log.setComplaintId(cursor.getString(cursor.getColumnIndexOrThrow(KEY_LOG_COMPLAINT_ID)));
                 log.setUpdatedBy(cursor.getString(cursor.getColumnIndexOrThrow(KEY_LOG_UPDATED_BY)));
                 log.setOldStatus(cursor.getString(cursor.getColumnIndexOrThrow(KEY_LOG_OLD_STATUS)));
                 log.setNewStatus(cursor.getString(cursor.getColumnIndexOrThrow(KEY_LOG_NEW_STATUS)));
@@ -449,27 +449,27 @@ public class DBHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public int deleteComplaint(int complaintId) {
+    public int deleteComplaint(String complaintId) {
         SQLiteDatabase db = this.getWritableDatabase();
         int rowsDeleted = db.delete(TABLE_COMPLAINTS, KEY_COMPLAINT_ID + "=?",
-                new String[]{String.valueOf(complaintId)});
+                new String[]{complaintId});
         // Also delete status logs for this complaint
         db.delete(TABLE_STATUS_LOGS, KEY_LOG_COMPLAINT_ID + "=?",
-                new String[]{String.valueOf(complaintId)});
+                new String[]{complaintId});
         db.close();
         return rowsDeleted;
     }
 
-    public User getUserById(int id) {
+    public User getUserById(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_USERS, null,
                 KEY_USER_ID + " = ?",
-                new String[]{String.valueOf(id)},
+                new String[]{id},
                 null, null, null);
         User user = null;
         if (cursor != null && cursor.moveToFirst()) {
             user = new User();
-            user.setId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_USER_ID)));
+            user.setId(String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_USER_ID))));
             user.setName(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_NAME)));
             user.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_EMAIL)));
             user.setRole(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_ROLE)));
@@ -490,7 +490,7 @@ public class DBHelper extends SQLiteOpenHelper {
         User user = null;
         if (cursor != null && cursor.moveToFirst()) {
             user = new User();
-            user.setId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_USER_ID)));
+            user.setId(String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_USER_ID))));
             user.setName(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_NAME)));
             user.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_EMAIL)));
             user.setRole(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_ROLE)));
@@ -509,7 +509,7 @@ public class DBHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 User user = new User();
-                user.setId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_USER_ID)));
+                user.setId(String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_USER_ID))));
                 user.setName(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_NAME)));
                 user.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_EMAIL)));
                 user.setRole(cursor.getString(cursor.getColumnIndexOrThrow(KEY_USER_ROLE)));
@@ -523,12 +523,12 @@ public class DBHelper extends SQLiteOpenHelper {
         return userList;
     }
 
-    public int updateUserRole(int userId, String newRole) {
+    public int updateUserRole(String userId, String newRole) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_USER_ROLE, newRole);
         int rowsUpdated = db.update(TABLE_USERS, values, KEY_USER_ID + "=?",
-                new String[]{String.valueOf(userId)});
+                new String[]{userId});
         db.close();
         return rowsUpdated;
     }

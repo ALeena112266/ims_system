@@ -1,8 +1,8 @@
 package com.example.imssystem.models;
 
 public class StatusLog {
-    private int id;
-    private int complaintId;
+    private String id;
+    private String complaintId;
     private String updatedBy;
     private String oldStatus;
     private String newStatus;
@@ -12,7 +12,7 @@ public class StatusLog {
     public StatusLog() {
     }
 
-    public StatusLog(int complaintId, String updatedBy, String oldStatus, String newStatus, String note, String timestamp) {
+    public StatusLog(String complaintId, String updatedBy, String oldStatus, String newStatus, String note, String timestamp) {
         this.complaintId = complaintId;
         this.updatedBy = updatedBy;
         this.oldStatus = oldStatus;
@@ -21,19 +21,19 @@ public class StatusLog {
         this.timestamp = timestamp;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public int getComplaintId() {
+    public String getComplaintId() {
         return complaintId;
     }
 
-    public void setComplaintId(int complaintId) {
+    public void setComplaintId(String complaintId) {
         this.complaintId = complaintId;
     }
 
